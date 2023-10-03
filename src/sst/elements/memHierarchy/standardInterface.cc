@@ -514,7 +514,7 @@ Event* StandardInterface::MemEventConverter::convert(StandardMem::MoveData* req)
     return move;
 }
 Event* StandardInterface::MemEventConverter::convert(StandardMem::CustomReq* req) {
-    CustomMemEvent* creq = new CustomMemEvent(iface->getName(), Command::CustomReq, req->data);
+    CustomMemEvent* creq = new CustomMemEvent(iface->getName(), Command::CustomReq, req->data.release());
     if (!req->needsResponse())
         creq->setFlag(MemEventBase::F_NORESPONSE);
 
@@ -609,7 +609,7 @@ StandardMem::Request* StandardInterface::convertResponseCustomResp(StandardMem::
     StandardMem::Request* resp = req->needsResponse() ? req->makeResponse() : nullptr;
     StandardMem::CustomResp* cresp = static_cast<StandardMem::CustomResp*>(resp);
     if (cresp) { 
-        cresp->data = static_cast<CustomMemEvent*>(meb)->getCustomData(); 
+        cresp->data.reset(static_cast<CustomMemEvent*>(meb)->getCustomData()); 
     }
     return cresp;
 }
